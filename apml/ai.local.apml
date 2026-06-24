@@ -1,6 +1,6 @@
 title: AI Gateway Plan
 baseUri: https://ai.local
-version: 1.0
+version: draft
 
 
 quotas:
