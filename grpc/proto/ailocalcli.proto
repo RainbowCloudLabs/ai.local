@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+package grpc;
+
+option go_package = "./proto";
+
+service AdminService {
+    // Route APIs
+    rpc ListRoutes (ListRoutesRequest) returns (ListRoutesResponse);
+
+    // Quota APIs
+    rpc ListQuotas (ListQuotasRequest) returns (ListQuotasResponse);
+
+    // Key Management APIs
+    rpc ListKeys (ListKeysRequest) returns (ListKeysResponse);
+    rpc AddKey (AddKeyRequest) returns (AddKeyResponse);
+    rpc DeleteKey (DeleteKeyRequest) returns (DeleteKeyResponse);
+
+    // Telemetry Stats API
+    rpc GetStats (GetStatsRequest) returns (GetStatsResponse);
+}
+
+// Routes
+message ListRoutesRequest {}
+message RouteInfo {
+    string uri = 1;
+    string quota = 2;
+    string provider = 3;
+}
+message ListRoutesResponse {
+    repeated RouteInfo routes = 1;
+}
+
+// Quotas
+message ListQuotasRequest {}
+message QuotaInfo {
+    string name = 1;
+    int64 daily = 2;
+    int64 monthly = 3;
+    string mode = 4;
+    string status = 5; // APPLIED or IDLE
+}
+message ListQuotasResponse {
+    repeated QuotaInfo quotas = 1;
+}
+
+// Keys
+message ListKeysRequest {}
+message KeyInfo {
+    string uuid = 1;
+    string alias = 2;
+    string route = 3;
+    string real_key = 4;
+    string internal_key = 5;
+}
+message ListKeysResponse {
+    repeated KeyInfo keys = 1;
+}
+
+message AddKeyRequest {
+    string route = 1;
+    string real_key = 2;
+    string alias = 3;
+}
+message AddKeyResponse {
+    string internal_key = 1;
+}
+
+message DeleteKeyRequest {
+    string uuid = 1;
+}
+message DeleteKeyResponse {
+    bool success = 1;
+}
+
+// ─── Stats Telemetry Messages ───
+
+message GetStatsRequest {
+    enum Mode {
+        DAILY = 0;
+        MONTHLY = 1;
+        VERBOSE = 2;
+    }
+    Mode mode = 1;
+    
+    // Filters (Optional depending on mode)
+    string start_date = 2; // YYYY-MM-DD
+    string end_date = 3;   // YYYY-MM-DD
+    int32 year = 4;        // YYYY
+    int32 max_count = 5;   // Limit for verbose mode
+}
+
+message DailyStatRow {
+    string date = 1;              // YYYY-MM-DD
+    string route_path = 2;
+    string local_key = 3;
+    int64 total_requests = 4;
+    int64 prompt_tokens = 5;
+    int64 completion_tokens = 6;
+    int64 total_tokens = 7;
+    string last_activity = 8;     // RFC3339 or "YYYY-MM-DD HH:MM:SS"
+}
+
+message MonthlyStatRow {
+    string month = 1;             // YYYY-MM
+    string route_path = 2;
+    string local_key = 3;
+    int64 total_requests = 4;
+    int64 prompt_tokens = 5;
+    int64 completion_tokens = 6;
+    int64 total_tokens = 7;
+}
+
+
+message VerboseStatRow {
+    string timestamp = 1;
+    int64 id = 2;
+    string local_key = 3;
+    string route_path = 4;
+    int64 prompt_tokens = 5;
+    string client_ip = 6;
+    int64 completion_tokens = 7;
+    int64 total_tokens = 8;
+}
+
+message GetStatsResponse {
+    repeated DailyStatRow daily_rows = 1;
+    repeated MonthlyStatRow monthly_rows = 2;
+    repeated VerboseStatRow verbose_rows = 3;
+}

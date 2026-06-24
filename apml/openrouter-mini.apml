@@ -1,0 +1,31 @@
+title: AI Gateway Plan (OpenRouter Prefix Routing)
+baseUri: https://ai.local
+version: 1.0
+
+quotas:
+  unlimited:
+    daily: 0
+    monthly: 0
+  small:
+    mode: per_key
+    daily: 10
+    monthly: 100
+
+providers:
+  openrouter:
+    host: openrouter.ai
+    usage:
+      input_tokens: usage.prompt_tokens
+      output_tokens: usage.completion_tokens
+    streaming:
+      mode: last
+      input_tokens: usage.prompt_tokens
+      output_tokens: usage.completion_tokens
+
+/openrouter0:
+  provider: openrouter
+  quota: unlimited
+
+/openrouter100:
+  provider: openrouter
+  quota: small

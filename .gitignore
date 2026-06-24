@@ -1,0 +1,39 @@
+# Binaries
+bin/
+dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+ 
+# Build output
+ai.local
+ai.local.cli
+ 
+# Test binary, built with go test -c
+*.test
+ 
+# Test cache
+*.out
+coverage.html
+coverage.out
+ 
+# Go workspace
+go.work
+go.work.sum
+ 
+# Dependency directories
+vendor/
+ 
+# Environment variables
+.env
+.env.*
+!.env.example
+ 
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*.DS_Store

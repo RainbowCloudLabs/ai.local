@@ -1,0 +1,102 @@
+title: AI Gateway Plan
+baseUri: https://ai.local
+version: 1.0
+
+
+quotas:
+  unlimited:
+    daily: 0
+    monthly: 0
+  small:
+    mode: per_key
+    daily: 10000
+    monthly: 100000
+  medium:
+    mode: per_key
+    daily: 50000
+    monthly: 500000
+  large:
+    mode: shared
+    daily: 200000
+    monthly: 2000000
+
+
+providers:
+  claude:
+    # The absolute hostname or base URL of the upstream model provider.
+    host: api.anthropic.com
+    # [Optional] The header and authentication scheme layout required by the upstream.
+    # If this attribute is omitted or left empty, the gateway automatically falls back
+    # to the industrial standard default: "Authorization": "Bearer <API_KEY>".
+    # For custom headers (e.g., Anthropic's "X-API-Key"), explicitly declare the string here.
+    api_key_prefix: X-API-Key
+    # [Optional] The JSON notation path used to extract the user's raw prompt
+    # from the inbound request body. If defined, the gateway activates pre-flight
+    # check mode to estimate token usage before forwarding. If omitted, the gateway
+    # falls back to post-accounting mode upon receiving the upstream response.
+    input_message: messages.content
+    usage:
+      input_tokens: usage.input_tokens
+      output_tokens: usage.output_tokens
+    streaming:
+      mode: split
+      input:
+        chunk_type: message_start
+        input_tokens: message.usage.input_tokens
+      output:
+        chunk_type: message_delta
+        output_tokens: usage.output_tokens
+
+  gemini:
+    host: generativelanguage.googleapis.com
+    api_key_prefix: X-Goog-Api-Key
+    input_message: contents.parts.text
+    usage:
+      input_tokens: usageMetadata.promptTokenCount
+      output_tokens: usageMetadata.candidatesTokenCount
+    streaming:
+      mode: last
+      input_tokens: usageMetadata.promptTokenCount
+      output_tokens: usageMetadata.candidatesTokenCount
+
+  openai:
+    host: api.openai.com
+    input_message: messages.content
+    usage:
+      input_tokens: usage.prompt_tokens
+      output_tokens: usage.completion_tokens
+    streaming:
+      mode: last
+      input_tokens: usage.prompt_tokens
+      output_tokens: usage.completion_tokens
+      request_option:
+        stream_options:
+          include_usage: true
+
+  local:
+    host: http://localhost:11434
+    usage:
+      input_tokens: prompt_eval_count
+      output_tokens: eval_count
+    streaming:
+      mode: last
+      input_tokens: prompt_eval_count
+      output_tokens: eval_count
+
+
+/claude:
+  provider: claude
+  quota: medium
+
+/gemini:
+  provider: gemini
+  quota: medium
+
+/nolimit:
+  provider: claude
+  quota: unlimited
+
+/local:
+  provider: local
+  quota: large
+
