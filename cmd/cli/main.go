@@ -22,7 +22,11 @@ type CLIConfig struct {
 
 // parseCLIConfig parses global flags and returns CLI configuration.
 func parseCLIConfig() CLIConfig {
-	grpcAddr := flag.String("addr", "127.0.0.1:50051", "gRPC control plane server address")
+	defaultAddr := os.Getenv("AI_LOCAL_ADDR")
+	if defaultAddr == "" {
+		defaultAddr = "127.0.0.1:50051"
+	}
+	grpcAddr := flag.String("addr", defaultAddr, "gRPC control plane server address")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: ai.local.cli [options] <resource> <action> [args]\n\n")
 		fmt.Fprintf(os.Stderr, "Resources & Actions:\n")
