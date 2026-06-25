@@ -10,6 +10,7 @@ import (
 	"time"
 
 	pb "github.com/daneshih1125/ai.local/proto"
+	"github.com/manifoldco/promptui"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -188,12 +189,25 @@ func handleKeyList(ctx context.Context, client pb.AdminServiceClient) {
 
 // handleKeyAdd prompts for credentials and submits AddKey via RPC.
 func handleKeyAdd(ctx context.Context, client pb.AdminServiceClient, route string) {
-	var realKey, alias string
 
-	fmt.Print("please input key:\n")
-	fmt.Scanln(&realKey)
-	fmt.Print("Alias (allow empty):\n")
-	fmt.Scanln(&alias)
+	keyPrompt := promptui.Prompt{
+		Label: "Please input key",
+		Mask:  '*',
+	}
+	realKey, err := keyPrompt.Run()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "input error: %v\n", err)
+		os.Exit(1)
+	}
+
+	aliasPrompt := promptui.Prompt{
+		Label: "Alias (allow empty)",
+	}
+	alias, err := aliasPrompt.Run()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "input error: %v\n", err)
+		os.Exit(1)
+	}
 
 	netCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()

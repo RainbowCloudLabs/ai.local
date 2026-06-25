@@ -134,8 +134,19 @@ func (s *Store) GetKeyByInternal(internalKey string) (KeyRecord, bool) {
 
 // MaskKey is a static formatting helper to securely redact active authorization payloads.
 func MaskKey(key string) string {
-	if len(key) <= 6 {
+	length := len(key)
+
+	if length < 4 {
 		return "******"
 	}
-	return key[:6] + "******"
+
+	if length <= 12 {
+		return key[:4] + "******"
+	}
+
+	if length > 30 {
+		return key[:12] + "******"
+	}
+
+	return key[:8] + "******"
 }
