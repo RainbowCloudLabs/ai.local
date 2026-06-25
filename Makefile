@@ -6,6 +6,10 @@
 SERVER_BIN := ai.local
 CLI_BIN    := ai.local.cli
 
+# Docker Image
+DOCKER_IMAGE_NAME := ai.local
+DOCKER_TAR        := ai.local-alpha.tar
+
 # Main entry points (Adjust these paths if your main.go files are located elsewhere)
 SERVER_PKG := ./cmd/server
 CLI_PKG    := ./cmd/cli
@@ -42,6 +46,18 @@ build-cli: ## Build the ai.local.cli tool binary
 	@echo "==> Building $(CLI_BIN)..."
 	@$(GO_ENV) go build -ldflags "$(LDFLAGS)" -o $(CLI_BIN) $(CLI_PKG)
 	@echo "--> Success: ./$(CLI_BIN)"
+
+.PHONY: docker-image
+docker-image: ## Build the lightweight production Docker image locally
+	@echo "==> Building Docker image $(DOCKER_IMAGE_NAME)..."
+	@sudo docker build -t $(DOCKER_IMAGE_NAME):alpha -t $(DOCKER_IMAGE_NAME):latest .
+	@echo "--> Success: Docker images tagged as $(DOCKER_IMAGE_NAME):alpha and $(DOCKER_IMAGE_NAME):latest"
+
+.PHONY: docker-export
+docker-export: docker-image ## Export the local Docker image into a redistributable .tar file
+	@echo "==> Exporting $(DOCKER_IMAGE_NAME):latest to $(DOCKER_TAR)..."
+	@sudo docker save -o $(DOCKER_TAR) $(DOCKER_IMAGE_NAME):latest
+	@echo "--> Success: Physical image archive ready at ./$(DOCKER_TAR)"
 
 .PHONY: clean
 clean: ## Remove compiled binaries and scratch files
