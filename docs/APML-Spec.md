@@ -8,6 +8,12 @@ Ingress URL paths declared with a leading slash (`/`) map directly onto these co
 
 > 🛡️ **Boundary Separation Constraint**: APML is explicitly restricted to routing topography and telemetry modeling. It **does not engage** with the physical storage, lifecycle, or management of sensitive API keys (Upstream Credentials). Key bindings are isolated within the secure Control-Plane Keystore backend.
 
+## AI PLAN Description
+* **`title`**: String (Required). Arbitrary descriptive identity or naming matrix assigned to this specific AI API gateway configuration setup (e.g., `AI Gateway Plan`)
+* **`baseUri`**: String (Required). The target structural domain or local interface interface bound to the proxy entrance (e.g., `https://ai.local`). Upstream applications redirect their base URLs here for transparent routing.
+* **`version`**: String (Required). DSL layout specification version control. Set to `draft` to enable relaxed parsing compatibility during rapid architecture iterations.
+* **`plan_version`**: String (Required). The operational versioning token for the current quota modeling matrix. Must strictly match the alphanumeric format `^[a-zA-Z][a-zA-Z0-9-]*$` (underscores are forbidden). Modifying this token automatically channels all runtime telemetry to an isolated database partition (`usage-{plan_version}.db`), ensuring historical accountability and eliminating memory cache friction.
+
 ## Quotas Layout (`quotas`)
 The `quotas` section models the token consumption constraints enforced across the gateway's routing tubes. It allows you to define distinct tiered budget profiles (e.g., `small`, `medium`, `large`) that monitor and restrict both daily and monthly token velocity.
 

@@ -13,6 +13,7 @@ import (
 // must start with an ASCII letter, followed by any number of alphanumeric characters,
 // underscores, or hyphens. This permits expressive naming conventions (e.g., "claude-3-5-sonnet", "vip_pool_2").
 var alphaNameRegex = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_-]*$`)
+var planVersionRegex = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9-]*$`)
 
 // Parse reads, unmarshals, and validates an APML configuration file from the given path.
 func Parse(path string) (*APMLConfig, error) {
@@ -62,6 +63,8 @@ func (c *APMLConfig) UnmarshalYAML(value *yaml.Node) error {
 			c.BaseURI = valNode.Value
 		case "version":
 			c.Version = valNode.Value
+		case "plan_version":
+			c.PlanVersion = valNode.Value
 		case "quotas":
 			if err := valNode.Decode(&c.Quotas); err != nil {
 				return fmt.Errorf("failed to decode quotas: %w", err)
@@ -87,6 +90,12 @@ func (c *APMLConfig) validate() error {
 	}
 	if c.Version == "" {
 		return fmt.Errorf("version is required")
+	}
+	if c.PlanVersion == "" {
+		return fmt.Errorf("plan_version is required")
+	}
+	if !planVersionRegex.MatchString(c.PlanVersion) {
+		return fmt.Errorf("invalid plan_version name %q", c.PlanVersion)
 	}
 	if len(c.Routes) == 0 {
 		return fmt.Errorf("at least one route is required")

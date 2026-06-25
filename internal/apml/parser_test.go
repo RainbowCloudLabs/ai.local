@@ -29,8 +29,11 @@ func TestParse_APML_Suite(t *testing.T) {
 		if cfg.BaseURI != "https://ai.local" {
 			t.Errorf("BaseURI = %q, want %q", cfg.BaseURI, "https://ai.local")
 		}
-		if cfg.Version != "1.0" {
-			t.Errorf("Version = %q, want %q", cfg.Version, "1.0")
+		if cfg.Version != "draft" {
+			t.Errorf("Version = %q, want %q", cfg.Version, "draft")
+		}
+		if cfg.PlanVersion != "2026Q3" {
+			t.Errorf("Version = %q, want %q", cfg.Version, "2026Q3")
 		}
 	})
 
@@ -165,22 +168,27 @@ func TestParse_SadPath_Suite(t *testing.T) {
 		// =================================================================
 		{
 			name:          "Missing_Title",
-			yamlContent:   "baseUri: https://ai.local\nversion: '1.0'\n/test: { provider: claude }",
+			yamlContent:   "baseUri: https://ai.local\nversion: '1.0'\nplan_version: 2026\n/test: { provider: claude }",
 			expectedMatch: "title is required",
 		},
 		{
 			name:          "Missing_BaseURI",
-			yamlContent:   "title: Gateway\nversion: '1.0'\n/test: { provider: claude }",
+			yamlContent:   "title: Gateway\nversion: '1.0'\nplan_version: 2026\n/test: { provider: claude }",
 			expectedMatch: "baseUri is required",
 		},
 		{
 			name:          "Missing_Version",
-			yamlContent:   "title: Gateway\nbaseUri: https://ai.local\n/test: { provider: claude }",
+			yamlContent:   "title: Gateway\nbaseUri: https://ai.local\nplan_version: 2026\ntest: { provider: claude }",
 			expectedMatch: "version is required",
 		},
 		{
+			name:          "Missing_PlanVersion",
+			yamlContent:   "title: Gateway\nbaseUri: https://ai.local\nversion: '1.0'\n/test: {provider: claude}",
+			expectedMatch: "plan_version is required",
+		},
+		{
 			name:          "Missing_Routes",
-			yamlContent:   "title: Gateway\nbaseUri: https://ai.local\nversion: '1.0'",
+			yamlContent:   "title: Gateway\nbaseUri: https://ai.local\nplan_version: 2026\nversion: '1.0'",
 			expectedMatch: "at least one route is required",
 		},
 
@@ -192,7 +200,8 @@ func TestParse_SadPath_Suite(t *testing.T) {
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 quotas:
   123small: { daily: 10, monthly: 100 }
 /test: { provider: claude }`,
@@ -203,7 +212,8 @@ quotas:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 quotas:
   bad: { daily: -5, monthly: 100 }
 /test: { provider: claude }`,
@@ -214,7 +224,8 @@ quotas:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 quotas:
   active: { daily: 10, monthly: 100, mode: custom_mode }
 /test: { provider: claude }`,
@@ -229,7 +240,8 @@ quotas:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 providers:
   claude.2: { host: api.com }
 /test: { provider: claude }`,
@@ -240,7 +252,8 @@ providers:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 providers:
   claude: { host: "" }
 /test: { provider: claude }`,
@@ -251,7 +264,8 @@ providers:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 providers:
   claude: { host: api.com }
 /test: { provider: claude }`,
@@ -262,7 +276,8 @@ providers:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 providers:
   claude:
     host: api.com
@@ -275,7 +290,8 @@ providers:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 providers:
   claude:
     host: api.com
@@ -288,7 +304,8 @@ providers:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 providers:
   claude:
     host: api.com
@@ -301,7 +318,8 @@ providers:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 providers:
   claude:
     host: api.com
@@ -319,7 +337,8 @@ providers:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 providers:
   gemini:
     host: api.com
@@ -333,7 +352,8 @@ providers:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 providers:
   gemini:
     host: api.com
@@ -347,7 +367,8 @@ providers:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 providers:
   gemini:
     host: api.com
@@ -369,7 +390,8 @@ providers:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 providers:
   claude:
     host: api.com
@@ -383,7 +405,8 @@ providers:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 providers:
   claude:
     host: api.com
@@ -400,7 +423,8 @@ providers:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 providers:
   claude:
     host: api.com
@@ -417,7 +441,8 @@ providers:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 providers:
   claude:
     host: api.com
@@ -439,7 +464,8 @@ providers:
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 /test: { quota: small }`,
 			expectedMatch: "provider is required",
 		},
@@ -448,7 +474,8 @@ version: '1.0'
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 /test: { provider: phantom }`,
 			expectedMatch: "is not defined in providers",
 		},
@@ -457,7 +484,8 @@ version: '1.0'
 			yamlContent: `
 title: Gateway
 baseUri: https://ai.local
-version: '1.0'
+version: draft
+plan_version: 2026-dev
 providers:
   claude:
     host: api.com

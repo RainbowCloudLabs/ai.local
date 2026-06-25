@@ -1,12 +1,13 @@
 package apml
 
 type APMLConfig struct {
-	Title     string                    `yaml:"title"`
-	BaseURI   string                    `yaml:"baseUri"`
-	Version   string                    `yaml:"version"`
-	Quotas    map[string]QuotaDetail    `yaml:"quotas"`
-	Providers map[string]ProviderConfig `yaml:"providers"`
-	Routes    map[string]RouteConfig    `yaml:",inline"`
+	Title       string                    `yaml:"title"`
+	BaseURI     string                    `yaml:"baseUri"`
+	Version     string                    `yaml:"version"`
+	PlanVersion string                    `yaml:"plan_version"`
+	Quotas      map[string]QuotaDetail    `yaml:"quotas"`
+	Providers   map[string]ProviderConfig `yaml:"providers"`
+	Routes      map[string]RouteConfig    `yaml:",inline"`
 }
 
 type QuotaDetail struct {

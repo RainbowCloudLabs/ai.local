@@ -1,6 +1,7 @@
 title: AI Gateway Plan (OpenRouter Prefix Routing)
 baseUri: https://ai.local
-version: 1.0
+version: draft
+plan_version: 2026Q3
 
 quotas:
   unlimited:
