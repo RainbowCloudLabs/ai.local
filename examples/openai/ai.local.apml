@@ -1,0 +1,30 @@
+title: AI Gateway Plan
+baseUri: https://ai.local
+version: draft
+plan_version: 2026Q3
+
+
+quotas:
+  unlimited:
+    daily: 0
+    monthly: 0
+
+
+providers:
+  openai:
+    host: api.openai.com
+    input_message: messages.content
+    usage:
+      input_tokens: usage.prompt_tokens
+      output_tokens: usage.completion_tokens
+    streaming:
+      mode: last
+      input_tokens: usage.prompt_tokens
+      output_tokens: usage.completion_tokens
+      request_option:
+        stream_options:
+          include_usage: true
+
+/openai:
+  provider: openai
+  quota: unlimited

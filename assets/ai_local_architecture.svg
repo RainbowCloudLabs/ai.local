@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 750" width="100%" height="100%">
+  <rect width="1000" height="750" fill="#F0F4F8" rx="16"/>
+
+  <g opacity="0.05">
+    <path d="M0 50 H1000 M0 100 H1000 M0 150 H1000 M0 200 H1000 M0 250 H1000 M0 300 H1000 M0 350 H1000 M0 400 H1000 M0 450 H1000 M0 50 H1000 M0 500 H1000 M0 550 H1000 M0 600 H1000 M0 650 H1000 M0 700 H1000" stroke="#003366" stroke-width="1"/>
+    <path d="M50 0 V750 M100 0 V750 M150 0 V750 M200 0 V750 M250 0 V750 M300 0 V750 M350 0 V750 M400 0 V750 M450 0 V750 M500 0 V750 M550 0 V750 M600 0 V750 M650 0 V750 M700 0 V750 M750 0 V750 M800 0 V750 M850 0 V750 M900 0 V750 M950 0 V750" stroke="#003366" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(60, 60)">
+    <rect width="200" height="90" fill="#E8E5FF" stroke="#6C5CE7" stroke-width="2" rx="12"/>
+    <text x="100" y="38" font-family="Arial, Helvetica" font-size="20" font-weight="bold" fill="#4B0082" text-anchor="middle">ai.local.cli</text>
+    <text x="100" y="65" font-family="Arial, Helvetica" font-size="15" fill="#6C5CE7" text-anchor="middle">admin CLI</text>
+  </g>
+
+  <g transform="translate(60, 270)">
+    <rect width="200" height="90" fill="#FFF4E5" stroke="#E67E22" stroke-width="2" rx="12"/>
+    <text x="100" y="38" font-family="Arial, Helvetica" font-size="20" font-weight="bold" fill="#D35400" text-anchor="middle">AI clients</text>
+    <text x="100" y="65" font-family="Arial, Helvetica" font-size="15" fill="#E67E22" text-anchor="middle">SDK / curl / app</text>
+  </g>
+
+  <rect x="370" y="40" width="280" height="580" fill="#EBF3FC" stroke="#2980B9" stroke-width="3" rx="20"/>
+  <text x="510" y="75" font-family="Arial, Helvetica" font-size="24" font-weight="bold" fill="#1B4F72" text-anchor="middle">ai.local</text>
+
+  <g transform="translate(390, 100)">
+    <rect width="240" height="65" fill="#FFFFFF" stroke="#3498DB" stroke-width="1.5" rx="8"/>
+    <text x="120" y="28" font-family="Arial, Helvetica" font-size="18" font-weight="bold" fill="#2C3E50" text-anchor="middle">gRPC server</text>
+    <text x="120" y="50" font-family="Arial, Helvetica" font-size="14" fill="#5D6D7E" text-anchor="middle">control plane</text>
+  </g>
+
+  <g transform="translate(390, 180)">
+    <rect width="240" height="65" fill="#FFFFFF" stroke="#3498DB" stroke-width="1.5" rx="8"/>
+    <text x="120" y="28" font-family="Arial, Helvetica" font-size="18" font-weight="bold" fill="#2C3E50" text-anchor="middle">keystore</text>
+    <text x="120" y="50" font-family="Arial, Helvetica" font-size="14" fill="#27AE60" font-style="italic" text-anchor="middle">memory only</text>
+  </g>
+
+  <g transform="translate(390, 260)">
+    <rect width="240" height="65" fill="#FFFFFF" stroke="#3498DB" stroke-width="1.5" rx="8"/>
+    <text x="120" y="28" font-family="Arial, Helvetica" font-size="18" font-weight="bold" fill="#2C3E50" text-anchor="middle">reverse proxy</text>
+    <text x="120" y="50" font-family="Arial, Helvetica" font-size="14" fill="#2980B9" text-anchor="middle">quota + key swap</text>
+  </g>
+
+  <g transform="translate(390, 340)">
+    <rect width="240" height="65" fill="#FFFFFF" stroke="#3498DB" stroke-width="1.5" rx="8"/>
+    <text x="120" y="28" font-family="Arial, Helvetica" font-size="18" font-weight="bold" fill="#2C3E50" text-anchor="middle">usage backend</text>
+    <text x="120" y="50" font-family="Arial, Helvetica" font-size="14" fill="#7F8C8D" text-anchor="middle">async channel</text>
+  </g>
+
+  <g transform="translate(390, 420)">
+    <rect width="240" height="65" fill="#FFFFFF" stroke="#3498DB" stroke-width="1.5" rx="8"/>
+    <text x="120" y="28" font-family="Arial, Helvetica" font-size="18" font-weight="bold" fill="#2C3E50" text-anchor="middle">APML config</text>
+    <text x="120" y="50" font-family="Arial, Helvetica" font-size="14" fill="#5D6D7E" text-anchor="middle">provider + quota rules</text>
+  </g>
+
+  <g transform="translate(390, 500)">
+    <rect width="240" height="65" fill="#FFFFFF" stroke="#3498DB" stroke-width="1.5" rx="8"/>
+    <text x="120" y="28" font-family="Arial, Helvetica" font-size="18" font-weight="bold" fill="#2C3E50" text-anchor="middle">TLS cert</text>
+    <text x="120" y="50" font-family="Arial, Helvetica" font-size="14" fill="#E67E22" text-anchor="middle">self-signed / custom</text>
+  </g>
+
+  <g transform="translate(370, 645)">
+    <rect width="280" height="75" fill="#FEF9E7" stroke="#F1C40F" stroke-width="2.5" rx="12"/>
+    <text x="140" y="32" font-family="Arial, Helvetica" font-size="22" font-weight="bold" fill="#7D6608" text-anchor="middle">SQLite</text>
+    <text x="140" y="58" font-family="Arial, Helvetica" font-size="15" fill="#9A7D0A" text-anchor="middle">usage logs · daily · monthly</text>
+  </g>
+
+  <g transform="translate(720, 180)">
+    <rect width="220" height="75" fill="#EBF5FB" stroke="#2980B9" stroke-width="2" rx="12"/>
+    <text x="110" y="32" font-family="Arial, Helvetica" font-size="18" font-weight="bold" fill="#1B4F72" text-anchor="middle">Anthropic</text>
+    <text x="110" y="56" font-family="Arial, Helvetica" font-size="14" fill="#2980B9" text-anchor="middle">api.anthropic.com</text>
+  </g>
+
+  <g transform="translate(720, 280)">
+    <rect width="220" height="75" fill="#EBF5FB" stroke="#2980B9" stroke-width="2" rx="12"/>
+    <text x="110" y="32" font-family="Arial, Helvetica" font-size="18" font-weight="bold" fill="#1B4F72" text-anchor="middle">OpenAI</text>
+    <text x="110" y="56" font-family="Arial, Helvetica" font-size="14" fill="#2980B9" text-anchor="middle">api.openai.com</text>
+  </g>
+
+  <g transform="translate(720, 380)">
+    <rect width="220" height="75" fill="#EBF5FB" stroke="#2980B9" stroke-width="2" rx="12"/>
+    <text x="110" y="32" font-family="Arial, Helvetica" font-size="18" font-weight="bold" fill="#1B4F72" text-anchor="middle">OpenRouter</text>
+    <text x="110" y="56" font-family="Arial, Helvetica" font-size="14" fill="#2980B9" text-anchor="middle">openrouter.ai</text>
+  </g>
+
+  <g transform="translate(720, 480)">
+    <rect width="220" height="75" fill="#EAEDED" stroke="#7F8C8D" stroke-width="2" rx="12"/>
+    <text x="110" y="32" font-family="Arial, Helvetica" font-size="18" font-weight="bold" fill="#424949" text-anchor="middle">Local Ollama</text>
+    <text x="110" y="56" font-family="Arial, Helvetica" font-size="14" fill="#7F8C8D" text-anchor="middle">localhost:11434</text>
+  </g>
+
+  <defs>
+    <marker id="arrow-dark" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#2C3E50"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#6C5CE7"/>
+    </marker>
+  </defs>
+
+  <path d="M260, 105 L360, 105" stroke="#6C5CE7" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#arrow-purple)"/>
+  <text x="310" y="95" font-family="Arial, Helvetica" font-size="13" font-weight="bold" fill="#6C5CE7" text-anchor="middle">gRPC / TLS</text>
+
+  <path d="M260, 315 L360, 315" stroke="#2C3E50" stroke-width="2.5" marker-end="url(#arrow-dark)"/>
+  <text x="310" y="305" font-family="Arial, Helvetica" font-size="14" font-weight="bold" fill="#2C3E50" text-anchor="middle">HTTPS</text>
+
+  <path d="M510, 620 L510, 637" stroke="#2C3E50" stroke-width="2.5" marker-end="url(#arrow-dark)"/>
+
+  <path d="M650, 292 L712, 230" stroke="#2C3E50" stroke-width="2" marker-end="url(#arrow-dark)"/>
+  <path d="M650, 315 L710, 315" stroke="#2C3E50" stroke-width="2.5" marker-end="url(#arrow-dark)"/>
+  <path d="M650, 338 L712, 400" stroke="#2C3E50" stroke-width="2" marker-end="url(#arrow-dark)"/>
+  <path d="M630, 365 L714, 485" stroke="#7F8C8D" stroke-width="1.5" marker-end="url(#arrow-dark)"/>
+
+  <text x="685" y="275" font-family="Arial, Helvetica" font-size="13" font-weight="bold" fill="#1B4F72" text-anchor="middle">HTTPS</text>
+  <text x="685" y="290" font-family="Arial, Helvetica" font-size="12" font-style="italic" fill="#2980B9" text-anchor="middle">real key</text>
+</svg>

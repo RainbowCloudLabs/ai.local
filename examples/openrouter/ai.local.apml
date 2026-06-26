@@ -1,0 +1,32 @@
+title: AI Gateway Plan
+baseUri: https://ai.local
+version: draft
+plan_version: 2026Q3
+
+quotas:
+  unlimited:
+    daily: 0
+    monthly: 0
+  small:
+    mode: per_key
+    daily: 10
+    monthly: 100
+
+providers:
+  openrouter:
+    host: openrouter.ai
+    usage:
+      input_tokens: usage.prompt_tokens
+      output_tokens: usage.completion_tokens
+    streaming:
+      mode: last
+      input_tokens: usage.prompt_tokens
+      output_tokens: usage.completion_tokens
+
+/openrouter0:
+  provider: openrouter
+  quota: unlimited
+
+/openrouter100:
+  provider: openrouter
+  quota: small
