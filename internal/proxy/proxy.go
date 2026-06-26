@@ -222,6 +222,9 @@ func (p *ProxyServer) handleReverseProxy(
 				if strings.EqualFold(key, "Authorization") {
 					continue
 				}
+				if strings.EqualFold(key, "Host") {
+					continue
+				}
 				if providerCfg.APIKeyPrefix != "" && strings.EqualFold(key, providerCfg.APIKeyPrefix) {
 					continue
 				}
@@ -262,7 +265,10 @@ func (p *ProxyServer) handleReverseProxy(
 
 					r.Out.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 					r.Out.ContentLength = int64(len(bodyBytes))
+					r.Out.Header.Set("Host", target.Host)
 					r.Out.Header.Set("Content-Length", strconv.Itoa(len(bodyBytes)))
+					r.Out.Header.Set("Content-Type", "application/json")
+					r.Out.Header.Del("Accept-Encoding")
 				}
 			}
 		},
