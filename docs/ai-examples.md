@@ -17,7 +17,7 @@ ai.local.cli key add /openai
 
 # Open a separate terminal, set your internal client token, and fire away!
 cd examples/openai/
-export AI_LOCAL_KEY="sk-local-your-generated-key"
+export OPENAI_API_KEY="sk-local-your-generated-key"
 
 # Run standard non-streaming evaluation
 ./usage.py

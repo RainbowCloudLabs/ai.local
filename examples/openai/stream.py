@@ -7,11 +7,11 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 GATEWAY_BASE_URL = "https://ai.local/openai/v1"
 
-INTERNAL_AI_LOCAL_KEY = os.getenv("AI_LOCAL_KEY", "your-internal-ai-local-key-here")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "your-internal-ai-local-key-here")
 
 client = OpenAI(
     base_url=GATEWAY_BASE_URL,
-    api_key=INTERNAL_AI_LOCAL_KEY,
+    api_key=OPENAI_API_KEY,
     http_client=OpenAI()._client.__class__(verify=False),
 )
 
