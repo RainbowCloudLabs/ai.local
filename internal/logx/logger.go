@@ -1,7 +1,6 @@
 package logx
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -119,18 +118,4 @@ func DisableDebug() {
 
 func DebugEnabled() bool {
 	return debugEnabled.Load()
-}
-
-// Optional raw logger access if needed.
-func App() *log.Logger {
-	return appLogger
-}
-
-func Access() *log.Logger {
-	return accessLogger
-}
-
-// Utility for callers that want to build line first.
-func Sprintf(format string, args ...any) string {
-	return fmt.Sprintf(format, args...)
 }

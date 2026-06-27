@@ -1146,6 +1146,95 @@ func (x *GetStatsResponse) GetVerboseRows() []*VerboseStatRow {
 	return nil
 }
 
+// ─── Debug Configuration Messages ───
+type ConfigureDebugRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Enable        bool                   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConfigureDebugRequest) Reset() {
+	*x = ConfigureDebugRequest{}
+	mi := &file_grpc_proto_ailocalcli_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConfigureDebugRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConfigureDebugRequest) ProtoMessage() {}
+
+func (x *ConfigureDebugRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_grpc_proto_ailocalcli_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConfigureDebugRequest.ProtoReflect.Descriptor instead.
+func (*ConfigureDebugRequest) Descriptor() ([]byte, []int) {
+	return file_grpc_proto_ailocalcli_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ConfigureDebugRequest) GetEnable() bool {
+	if x != nil {
+		return x.Enable
+	}
+	return false
+}
+
+type ConfigureDebugResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CurrentStatus bool                   `protobuf:"varint,1,opt,name=current_status,json=currentStatus,proto3" json:"current_status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConfigureDebugResponse) Reset() {
+	*x = ConfigureDebugResponse{}
+	mi := &file_grpc_proto_ailocalcli_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConfigureDebugResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConfigureDebugResponse) ProtoMessage() {}
+
+func (x *ConfigureDebugResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_grpc_proto_ailocalcli_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConfigureDebugResponse.ProtoReflect.Descriptor instead.
+func (*ConfigureDebugResponse) Descriptor() ([]byte, []int) {
+	return file_grpc_proto_ailocalcli_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ConfigureDebugResponse) GetCurrentStatus() bool {
+	if x != nil {
+		return x.CurrentStatus
+	}
+	return false
+}
+
 var File_grpc_proto_ailocalcli_proto protoreflect.FileDescriptor
 
 const file_grpc_proto_ailocalcli_proto_rawDesc = "" +
@@ -1230,7 +1319,11 @@ const file_grpc_proto_ailocalcli_proto_rawDesc = "" +
 	"\n" +
 	"daily_rows\x18\x01 \x03(\v2\x12.grpc.DailyStatRowR\tdailyRows\x127\n" +
 	"\fmonthly_rows\x18\x02 \x03(\v2\x14.grpc.MonthlyStatRowR\vmonthlyRows\x127\n" +
-	"\fverbose_rows\x18\x03 \x03(\v2\x14.grpc.VerboseStatRowR\vverboseRows2\xf9\x02\n" +
+	"\fverbose_rows\x18\x03 \x03(\v2\x14.grpc.VerboseStatRowR\vverboseRows\"/\n" +
+	"\x15ConfigureDebugRequest\x12\x16\n" +
+	"\x06enable\x18\x01 \x01(\bR\x06enable\"?\n" +
+	"\x16ConfigureDebugResponse\x12%\n" +
+	"\x0ecurrent_status\x18\x01 \x01(\bR\rcurrentStatus2\xc6\x03\n" +
 	"\fAdminService\x12?\n" +
 	"\n" +
 	"ListRoutes\x12\x17.grpc.ListRoutesRequest\x1a\x18.grpc.ListRoutesResponse\x12?\n" +
@@ -1239,7 +1332,8 @@ const file_grpc_proto_ailocalcli_proto_rawDesc = "" +
 	"\bListKeys\x12\x15.grpc.ListKeysRequest\x1a\x16.grpc.ListKeysResponse\x123\n" +
 	"\x06AddKey\x12\x13.grpc.AddKeyRequest\x1a\x14.grpc.AddKeyResponse\x12<\n" +
 	"\tDeleteKey\x12\x16.grpc.DeleteKeyRequest\x1a\x17.grpc.DeleteKeyResponse\x129\n" +
-	"\bGetStats\x12\x15.grpc.GetStatsRequest\x1a\x16.grpc.GetStatsResponseB\tZ\a./protob\x06proto3"
+	"\bGetStats\x12\x15.grpc.GetStatsRequest\x1a\x16.grpc.GetStatsResponse\x12K\n" +
+	"\x0eConfigureDebug\x12\x1b.grpc.ConfigureDebugRequest\x1a\x1c.grpc.ConfigureDebugResponseB\tZ\a./protob\x06proto3"
 
 var (
 	file_grpc_proto_ailocalcli_proto_rawDescOnce sync.Once
@@ -1254,27 +1348,29 @@ func file_grpc_proto_ailocalcli_proto_rawDescGZIP() []byte {
 }
 
 var file_grpc_proto_ailocalcli_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_grpc_proto_ailocalcli_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_grpc_proto_ailocalcli_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_grpc_proto_ailocalcli_proto_goTypes = []any{
-	(GetStatsRequest_Mode)(0),  // 0: grpc.GetStatsRequest.Mode
-	(*ListRoutesRequest)(nil),  // 1: grpc.ListRoutesRequest
-	(*RouteInfo)(nil),          // 2: grpc.RouteInfo
-	(*ListRoutesResponse)(nil), // 3: grpc.ListRoutesResponse
-	(*ListQuotasRequest)(nil),  // 4: grpc.ListQuotasRequest
-	(*QuotaInfo)(nil),          // 5: grpc.QuotaInfo
-	(*ListQuotasResponse)(nil), // 6: grpc.ListQuotasResponse
-	(*ListKeysRequest)(nil),    // 7: grpc.ListKeysRequest
-	(*KeyInfo)(nil),            // 8: grpc.KeyInfo
-	(*ListKeysResponse)(nil),   // 9: grpc.ListKeysResponse
-	(*AddKeyRequest)(nil),      // 10: grpc.AddKeyRequest
-	(*AddKeyResponse)(nil),     // 11: grpc.AddKeyResponse
-	(*DeleteKeyRequest)(nil),   // 12: grpc.DeleteKeyRequest
-	(*DeleteKeyResponse)(nil),  // 13: grpc.DeleteKeyResponse
-	(*GetStatsRequest)(nil),    // 14: grpc.GetStatsRequest
-	(*DailyStatRow)(nil),       // 15: grpc.DailyStatRow
-	(*MonthlyStatRow)(nil),     // 16: grpc.MonthlyStatRow
-	(*VerboseStatRow)(nil),     // 17: grpc.VerboseStatRow
-	(*GetStatsResponse)(nil),   // 18: grpc.GetStatsResponse
+	(GetStatsRequest_Mode)(0),      // 0: grpc.GetStatsRequest.Mode
+	(*ListRoutesRequest)(nil),      // 1: grpc.ListRoutesRequest
+	(*RouteInfo)(nil),              // 2: grpc.RouteInfo
+	(*ListRoutesResponse)(nil),     // 3: grpc.ListRoutesResponse
+	(*ListQuotasRequest)(nil),      // 4: grpc.ListQuotasRequest
+	(*QuotaInfo)(nil),              // 5: grpc.QuotaInfo
+	(*ListQuotasResponse)(nil),     // 6: grpc.ListQuotasResponse
+	(*ListKeysRequest)(nil),        // 7: grpc.ListKeysRequest
+	(*KeyInfo)(nil),                // 8: grpc.KeyInfo
+	(*ListKeysResponse)(nil),       // 9: grpc.ListKeysResponse
+	(*AddKeyRequest)(nil),          // 10: grpc.AddKeyRequest
+	(*AddKeyResponse)(nil),         // 11: grpc.AddKeyResponse
+	(*DeleteKeyRequest)(nil),       // 12: grpc.DeleteKeyRequest
+	(*DeleteKeyResponse)(nil),      // 13: grpc.DeleteKeyResponse
+	(*GetStatsRequest)(nil),        // 14: grpc.GetStatsRequest
+	(*DailyStatRow)(nil),           // 15: grpc.DailyStatRow
+	(*MonthlyStatRow)(nil),         // 16: grpc.MonthlyStatRow
+	(*VerboseStatRow)(nil),         // 17: grpc.VerboseStatRow
+	(*GetStatsResponse)(nil),       // 18: grpc.GetStatsResponse
+	(*ConfigureDebugRequest)(nil),  // 19: grpc.ConfigureDebugRequest
+	(*ConfigureDebugResponse)(nil), // 20: grpc.ConfigureDebugResponse
 }
 var file_grpc_proto_ailocalcli_proto_depIdxs = []int32{
 	2,  // 0: grpc.ListRoutesResponse.routes:type_name -> grpc.RouteInfo
@@ -1290,14 +1386,16 @@ var file_grpc_proto_ailocalcli_proto_depIdxs = []int32{
 	10, // 10: grpc.AdminService.AddKey:input_type -> grpc.AddKeyRequest
 	12, // 11: grpc.AdminService.DeleteKey:input_type -> grpc.DeleteKeyRequest
 	14, // 12: grpc.AdminService.GetStats:input_type -> grpc.GetStatsRequest
-	3,  // 13: grpc.AdminService.ListRoutes:output_type -> grpc.ListRoutesResponse
-	6,  // 14: grpc.AdminService.ListQuotas:output_type -> grpc.ListQuotasResponse
-	9,  // 15: grpc.AdminService.ListKeys:output_type -> grpc.ListKeysResponse
-	11, // 16: grpc.AdminService.AddKey:output_type -> grpc.AddKeyResponse
-	13, // 17: grpc.AdminService.DeleteKey:output_type -> grpc.DeleteKeyResponse
-	18, // 18: grpc.AdminService.GetStats:output_type -> grpc.GetStatsResponse
-	13, // [13:19] is the sub-list for method output_type
-	7,  // [7:13] is the sub-list for method input_type
+	19, // 13: grpc.AdminService.ConfigureDebug:input_type -> grpc.ConfigureDebugRequest
+	3,  // 14: grpc.AdminService.ListRoutes:output_type -> grpc.ListRoutesResponse
+	6,  // 15: grpc.AdminService.ListQuotas:output_type -> grpc.ListQuotasResponse
+	9,  // 16: grpc.AdminService.ListKeys:output_type -> grpc.ListKeysResponse
+	11, // 17: grpc.AdminService.AddKey:output_type -> grpc.AddKeyResponse
+	13, // 18: grpc.AdminService.DeleteKey:output_type -> grpc.DeleteKeyResponse
+	18, // 19: grpc.AdminService.GetStats:output_type -> grpc.GetStatsResponse
+	20, // 20: grpc.AdminService.ConfigureDebug:output_type -> grpc.ConfigureDebugResponse
+	14, // [14:21] is the sub-list for method output_type
+	7,  // [7:14] is the sub-list for method input_type
 	7,  // [7:7] is the sub-list for extension type_name
 	7,  // [7:7] is the sub-list for extension extendee
 	0,  // [0:7] is the sub-list for field type_name
@@ -1314,7 +1412,7 @@ func file_grpc_proto_ailocalcli_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_grpc_proto_ailocalcli_proto_rawDesc), len(file_grpc_proto_ailocalcli_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   18,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

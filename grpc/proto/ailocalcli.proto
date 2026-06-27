@@ -18,6 +18,9 @@ service AdminService {
 
     // Telemetry Stats API
     rpc GetStats (GetStatsRequest) returns (GetStatsResponse);
+
+    // Runtime Debug Config API
+    rpc ConfigureDebug (ConfigureDebugRequest) returns (ConfigureDebugResponse);
 }
 
 // Routes
@@ -127,4 +130,13 @@ message GetStatsResponse {
     repeated DailyStatRow daily_rows = 1;
     repeated MonthlyStatRow monthly_rows = 2;
     repeated VerboseStatRow verbose_rows = 3;
+}
+
+// ─── Debug Configuration Messages ───
+message ConfigureDebugRequest {
+    bool enable = 1;
+}
+
+message ConfigureDebugResponse {
+    bool current_status = 1;
 }

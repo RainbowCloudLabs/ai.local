@@ -237,3 +237,19 @@ func (h *AdminHandler) GetStats(ctx context.Context, req *pb.GetStatsRequest) (*
 
 	return resp, nil
 }
+
+func (h *AdminHandler) ConfigureDebug(ctx context.Context, req *pb.ConfigureDebugRequest) (*pb.ConfigureDebugResponse, error) {
+	if req == nil {
+		return nil, fmt.Errorf("request cannot be nil")
+	}
+
+	if req.Enable {
+		logx.EnableDebug()
+	} else {
+		logx.DisableDebug()
+	}
+
+	return &pb.ConfigureDebugResponse{
+		CurrentStatus: logx.DebugEnabled(),
+	}, nil
+}

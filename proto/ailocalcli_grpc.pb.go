@@ -19,12 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AdminService_ListRoutes_FullMethodName = "/grpc.AdminService/ListRoutes"
-	AdminService_ListQuotas_FullMethodName = "/grpc.AdminService/ListQuotas"
-	AdminService_ListKeys_FullMethodName   = "/grpc.AdminService/ListKeys"
-	AdminService_AddKey_FullMethodName     = "/grpc.AdminService/AddKey"
-	AdminService_DeleteKey_FullMethodName  = "/grpc.AdminService/DeleteKey"
-	AdminService_GetStats_FullMethodName   = "/grpc.AdminService/GetStats"
+	AdminService_ListRoutes_FullMethodName     = "/grpc.AdminService/ListRoutes"
+	AdminService_ListQuotas_FullMethodName     = "/grpc.AdminService/ListQuotas"
+	AdminService_ListKeys_FullMethodName       = "/grpc.AdminService/ListKeys"
+	AdminService_AddKey_FullMethodName         = "/grpc.AdminService/AddKey"
+	AdminService_DeleteKey_FullMethodName      = "/grpc.AdminService/DeleteKey"
+	AdminService_GetStats_FullMethodName       = "/grpc.AdminService/GetStats"
+	AdminService_ConfigureDebug_FullMethodName = "/grpc.AdminService/ConfigureDebug"
 )
 
 // AdminServiceClient is the client API for AdminService service.
@@ -41,6 +42,8 @@ type AdminServiceClient interface {
 	DeleteKey(ctx context.Context, in *DeleteKeyRequest, opts ...grpc.CallOption) (*DeleteKeyResponse, error)
 	// Telemetry Stats API
 	GetStats(ctx context.Context, in *GetStatsRequest, opts ...grpc.CallOption) (*GetStatsResponse, error)
+	// Runtime Debug Config API
+	ConfigureDebug(ctx context.Context, in *ConfigureDebugRequest, opts ...grpc.CallOption) (*ConfigureDebugResponse, error)
 }
 
 type adminServiceClient struct {
@@ -111,6 +114,16 @@ func (c *adminServiceClient) GetStats(ctx context.Context, in *GetStatsRequest, 
 	return out, nil
 }
 
+func (c *adminServiceClient) ConfigureDebug(ctx context.Context, in *ConfigureDebugRequest, opts ...grpc.CallOption) (*ConfigureDebugResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConfigureDebugResponse)
+	err := c.cc.Invoke(ctx, AdminService_ConfigureDebug_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdminServiceServer is the server API for AdminService service.
 // All implementations must embed UnimplementedAdminServiceServer
 // for forward compatibility.
@@ -125,6 +138,8 @@ type AdminServiceServer interface {
 	DeleteKey(context.Context, *DeleteKeyRequest) (*DeleteKeyResponse, error)
 	// Telemetry Stats API
 	GetStats(context.Context, *GetStatsRequest) (*GetStatsResponse, error)
+	// Runtime Debug Config API
+	ConfigureDebug(context.Context, *ConfigureDebugRequest) (*ConfigureDebugResponse, error)
 	mustEmbedUnimplementedAdminServiceServer()
 }
 
@@ -152,6 +167,9 @@ func (UnimplementedAdminServiceServer) DeleteKey(context.Context, *DeleteKeyRequ
 }
 func (UnimplementedAdminServiceServer) GetStats(context.Context, *GetStatsRequest) (*GetStatsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetStats not implemented")
+}
+func (UnimplementedAdminServiceServer) ConfigureDebug(context.Context, *ConfigureDebugRequest) (*ConfigureDebugResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ConfigureDebug not implemented")
 }
 func (UnimplementedAdminServiceServer) mustEmbedUnimplementedAdminServiceServer() {}
 func (UnimplementedAdminServiceServer) testEmbeddedByValue()                      {}
@@ -282,6 +300,24 @@ func _AdminService_GetStats_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdminService_ConfigureDebug_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfigureDebugRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).ConfigureDebug(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_ConfigureDebug_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).ConfigureDebug(ctx, req.(*ConfigureDebugRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdminService_ServiceDesc is the grpc.ServiceDesc for AdminService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -312,6 +348,10 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetStats",
 			Handler:    _AdminService_GetStats_Handler,
+		},
+		{
+			MethodName: "ConfigureDebug",
+			Handler:    _AdminService_ConfigureDebug_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

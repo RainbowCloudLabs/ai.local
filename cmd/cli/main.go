@@ -37,7 +37,8 @@ func parseCLIConfig() CLIConfig {
 		fmt.Fprintf(os.Stderr, "  key del <key_uuid>\n")
 		fmt.Fprintf(os.Stderr, "  stats [--start-date YYYY-MM-DD --end-date YYYY-MM-DD]\n")
 		fmt.Fprintf(os.Stderr, "  stats --monthly [--year YYYY]\n")
-		fmt.Fprintf(os.Stderr, "  stats --verbose [--count N]\n\n")
+		fmt.Fprintf(os.Stderr, "  stats --verbose [--count N]\n")
+		fmt.Fprintf(os.Stderr, "  debug <on/off>\n\n")
 		fmt.Fprintf(os.Stderr, "Options:\n")
 		flag.PrintDefaults()
 	}
@@ -130,6 +131,9 @@ func main() {
 			fmt.Fprintf(os.Stderr, "error: %v\n", err)
 			os.Exit(1)
 		}
+		return
+	case "debug":
+		handleDebugAction(cmdCtx, client, action)
 		return
 
 	default:
@@ -242,5 +246,28 @@ func handleKeyDel(ctx context.Context, client pb.AdminServiceClient, uuid string
 	} else {
 		fmt.Fprintf(os.Stderr, "error: tracking entity target [%s] not found inside keystore\n", uuid)
 		os.Exit(1)
+	}
+}
+
+// handleDebugAction enables or disables dynamic runtime debugging.
+func handleDebugAction(ctx context.Context, client pb.AdminServiceClient, action string) {
+	var enable bool
+
+	if action == "on" {
+		enable = true
+	} else {
+		enable = false
+	}
+
+	resp, err := client.ConfigureDebug(ctx, &pb.ConfigureDebugRequest{Enable: enable})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "rpc error: %v\n", err)
+		os.Exit(1)
+	}
+
+	if resp.CurrentStatus {
+		fmt.Println("success: runtime debug logging successfully energized.")
+	} else {
+		fmt.Println("success: runtime debug logging gracefully deactivated.")
 	}
 }
