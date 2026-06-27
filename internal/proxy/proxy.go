@@ -14,6 +14,7 @@ import (
 
 	"github.com/daneshih1125/ai.local/internal/apml"
 	"github.com/daneshih1125/ai.local/internal/keystore"
+	"github.com/daneshih1125/ai.local/internal/logx"
 	"github.com/daneshih1125/ai.local/internal/usage"
 	"github.com/gin-gonic/gin"
 	"github.com/tidwall/gjson"
@@ -85,7 +86,6 @@ func (p *ProxyServer) setupRoutes() error {
 			return fmt.Errorf("route %s: invalid host %q: %w", path, provider.Host, err)
 		}
 
-		// capture loop variables for closure
 		routePath := path
 		target := targetURL
 		routeCfg := route
@@ -99,6 +99,7 @@ func (p *ProxyServer) setupRoutes() error {
 
 func (p *ProxyServer) authInterceptor(routePath string) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		startTime := time.Now()
 		routeCfg := p.cfg.Routes[routePath]
 		providerCfg, exists := p.cfg.Providers[routeCfg.Provider]
 
@@ -120,6 +121,9 @@ func (p *ProxyServer) authInterceptor(routePath string) gin.HandlerFunc {
 
 		if isCustomHeader {
 			if len(parts) != 1 {
+				logx.Accessf("%s - - [%s] \"POST %s HTTP/1.1\" %d - \"-\" \"Missing custom key header\"",
+					clientIP, startTime.Format("02/Jan/2006:15:04:05 -0700"),
+					c.Request.URL.Path, http.StatusUnauthorized)
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 					"error":  "Unauthorized",
 					"detail": fmt.Sprintf("Missing or malformed key in custom header '%s'.", authHeaderKey),
@@ -129,6 +133,8 @@ func (p *ProxyServer) authInterceptor(routePath string) gin.HandlerFunc {
 			localKey = parts[0]
 		} else {
 			if len(parts) != 2 || !strings.EqualFold(parts[0], "bearer") {
+				logx.Accessf("%s - - [%s] \"POST %s HTTP/1.1\" %d - \"-\" \"Missing Bearer token\"",
+					clientIP, startTime.Format("02/Jan/2006:15:04:05 -0700"), c.Request.URL.Path, http.StatusUnauthorized)
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 					"error":  "Unauthorized",
 					"detail": "Missing or malformed Authorization header. Expected 'Bearer <key>'.",
@@ -140,6 +146,8 @@ func (p *ProxyServer) authInterceptor(routePath string) gin.HandlerFunc {
 
 		keyRecord, exists := p.store.GetKeyByInternal(localKey)
 		if !exists || keyRecord.Route != routePath {
+			logx.Accessf("%s - - [%s] \"POST %s HTTP/1.1\" %d - \"-\" \"Invalid or mismatched credential token\"",
+				clientIP, startTime.Format("02/Jan/2006:15:04:05 -0700"), c.Request.URL.Path, http.StatusUnauthorized)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error":  "Unauthorized",
 				"detail": "Invalid local API key or mismatched route gateway definition.",
@@ -156,6 +164,9 @@ func (p *ProxyServer) authInterceptor(routePath string) gin.HandlerFunc {
 
 			result := p.usageStore.QuotaCheck(localKey, routePath, quota, bodyBytes, &providerCfg)
 			if !result.Allowed {
+				logx.Accessf("%s - %s [%s] \"POST %s HTTP/1.1\" %d - \"-\" \"Quota exhausted: %s\"",
+					clientIP, keyRecord.Alias, startTime.Format("02/Jan/2006:15:04:05 -0700"),
+					c.Request.URL.Path, http.StatusTooManyRequests, result.DenyReason)
 				c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
 					"error":  "quota exceeded",
 					"detail": result.DenyReason,
@@ -167,6 +178,8 @@ func (p *ProxyServer) authInterceptor(routePath string) gin.HandlerFunc {
 		c.Set("realKey", keyRecord.RealKey)
 		c.Set("localKey", localKey)
 		c.Set("clientIP", clientIP)
+		c.Set("alias", keyRecord.Alias)
+		c.Set("startTime", startTime)
 		c.Next()
 	}
 }
@@ -209,6 +222,9 @@ func (p *ProxyServer) handleReverseProxy(
 	realKey := c.GetString("realKey")
 	localKey := c.GetString("localKey")
 	clientIP := c.GetString("clientIP")
+	alias := c.GetString("alias")
+	startTime := c.GetTime("startTime")
+
 	providerCfg, ok := p.cfg.Providers[routeCfg.Provider]
 	if !ok {
 		panic(fmt.Sprintf("APML Integrity Violation: provider %q bypassed boot-time validation", routeCfg.Provider))
@@ -217,7 +233,6 @@ func (p *ProxyServer) handleReverseProxy(
 	proxy := &httputil.ReverseProxy{
 		FlushInterval: 100 * time.Millisecond,
 		Rewrite: func(r *httputil.ProxyRequest) {
-
 			for key, values := range r.In.Header {
 				if strings.EqualFold(key, "Authorization") {
 					continue
@@ -250,18 +265,18 @@ func (p *ProxyServer) handleReverseProxy(
 			if r.In.Body != nil && r.In.Body != http.NoBody {
 				bodyBytes, err := io.ReadAll(r.In.Body)
 				if err == nil {
-					// 1. Evaluate the precise streaming footprint of the client request
 					streamField := gjson.GetBytes(bodyBytes, "stream")
 					if streamField.Exists() && streamField.Bool() {
 						isStreaming = true
 					}
 					c.Set("streaming", isStreaming)
 
-					// 2. Branching execution layer based on the resolved topology
 					if isStreaming && providerCfg.Streaming != nil {
-						// Invoke options injection using the already loaded binary context
+						logx.AccessDebugf("intercepting upstream ingress tunnel: injecting apml vendor stream options into payload")
 						bodyBytes = p.executeMergeOptionsInline(bodyBytes, providerCfg.Streaming.RequestOption)
 					}
+
+					logx.AccessDebugf("upstream request payload body json: %s", string(bodyBytes))
 
 					r.Out.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 					r.Out.ContentLength = int64(len(bodyBytes))
@@ -273,12 +288,13 @@ func (p *ProxyServer) handleReverseProxy(
 			}
 		},
 		ModifyResponse: func(res *http.Response) error {
-			// Fail-safe safety valve: Skip telemetry tracking if the upstream transaction faulted
 			if res.StatusCode != http.StatusOK {
+				logx.AccessDebugf("%s - %s [%s] \"POST %s HTTP/1.1\" %d - \"-\" \"Upstream vendor failure returned status %d\"",
+					clientIP, alias, startTime.Format("02/Jan/2006:15:04:05 -0700"),
+					c.Request.URL.Path, res.StatusCode, res.StatusCode)
 				return nil
 			}
 
-			// Retrieve runtime session states captured during the ingress pipeline phase
 			isStreaming := c.GetBool("streaming")
 
 			// ─── Scenario A: Standard One-Shot JSON Response (Non-Streaming) ───
@@ -289,8 +305,13 @@ func (p *ProxyServer) handleReverseProxy(
 				}
 				res.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 
-				// Parse the complete vendor-specific payload once the transmission stream finishes
+				logx.AccessDebugf("upstream non-streaming response body json: %s", string(bodyBytes))
 				promptTokens, completionTokens := usage.ParseStandardJSON(bodyBytes, &providerCfg)
+				latency := time.Since(startTime)
+
+				logx.AccessDebugf("%s - %s [%s] \"POST %s HTTP/1.1\" %d - \"-\" \"Tokens: P=%d C=%d T=%d | Latency: %v\"",
+					clientIP, alias, startTime.Format("02/Jan/2006:15:04:05 -0700"), c.Request.URL.Path,
+					res.StatusCode, promptTokens, completionTokens, promptTokens+completionTokens, latency)
 
 				record := &usage.Record{
 					LocalKey:         localKey,
@@ -306,21 +327,22 @@ func (p *ProxyServer) handleReverseProxy(
 			}
 
 			// ─── Scenario B: Server-Sent Events (Streaming) ───
-			// Provision an in-memory pipe connection topology for low-overhead chunk scraping
+			logx.AccessDebugf("establishing streaming server-sent events egress tunnel matrix for client ip: %s", clientIP)
 			pr, pw := io.Pipe()
-			// Intercept outbound responses: as Gin consumes chunks, they replicate concurrently to PipeWriter (pw)
-			//res.Body = io.NopCloser(io.TeeReader(res.Body, pw))
 			res.Body = &autoCloseWriter{
 				ReadCloser: io.NopCloser(io.TeeReader(res.Body, pw)),
 				onClose:    func() { pw.Close() },
 			}
 
-			// Asynchronous scraper routine decoupling main proxy loop execution context to keep O(1) latency profile
 			go func() {
-				// Enforce cleanup on teardown boundaries to prevent descriptor leaks
 				defer pr.Close()
-				// Stream the pipe chunks into the vendor-aware buffer reader parser in real-time
 				promptTokens, completionTokens := usage.ParseStreamReader(pr, &providerCfg)
+				latency := time.Since(startTime)
+
+				logx.AccessDebugf("%s - %s [%s] \"POST %s HTTP/1.1\" %d - \"-\" \"Stream Tokens: P=%d C=%d T=%d | Total Latency: %v\"",
+					clientIP, alias, startTime.Format("02/Jan/2006:15:04:05 -0700"), c.Request.URL.Path,
+					http.StatusOK, promptTokens, completionTokens, promptTokens+completionTokens, latency)
+
 				record := &usage.Record{
 					LocalKey:         localKey,
 					RoutePath:        routePath,
@@ -330,13 +352,13 @@ func (p *ProxyServer) handleReverseProxy(
 					TotalTokens:      promptTokens + completionTokens,
 					CreatedAt:        time.Now(),
 				}
-				// Emit transactional metric record block into the backend channel reservoir
 				p.usageBackend.EmitNonBlocking(record)
 			}()
 
 			return nil
 		},
 		ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
+			logx.Accessf("%s - %s [%s] \"POST %s HTTP/1.1\" %d - \"-\" \"Bad Gateway Proxy Connection Fault: %v\"", clientIP, alias, startTime.Format("02/Jan/2006:15:04:05 -0700"), routePath, http.StatusBadGateway, err)
 			c.JSON(http.StatusBadGateway, gin.H{
 				"error":  "upstream request failed",
 				"detail": err.Error(),

@@ -16,6 +16,7 @@ import (
 	"github.com/daneshih1125/ai.local/grpc"
 	"github.com/daneshih1125/ai.local/internal/apml"
 	"github.com/daneshih1125/ai.local/internal/keystore"
+	"github.com/daneshih1125/ai.local/internal/logx"
 	"github.com/daneshih1125/ai.local/internal/proxy"
 	internaltls "github.com/daneshih1125/ai.local/internal/tls"
 	"github.com/daneshih1125/ai.local/internal/usage"
@@ -39,26 +40,37 @@ func main() {
 	f := parseFlags()
 
 	if err := os.MkdirAll(f.dataDir, 0755); err != nil {
-		fatalf("failed to create data directory %s: %v", f.dataDir, err)
+		fmt.Fprintf(os.Stderr, "failed to create data directory %s: %v", f.dataDir, err)
+		os.Exit(1)
 	}
 
 	configPath := resolveConfigPath(f)
 	cfg := loadConfig(configPath)
+
+	if err := logx.Init(f.dataDir, buildPlanName(cfg)+".log", false); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to initialize logger: %v", err)
+		os.Exit(1)
+	}
 
 	if f.genCertOnly {
 		generateCert(cfg.BaseURI, f.dataDir)
 		return
 	}
 
+	logx.AppInfof("ai.local engine running: version %s — gateway base URI: %s", cfg.Version, cfg.BaseURI)
+
 	certPath, keyPath := resolveCertPaths(f.dataDir)
 	if !internaltls.CertExists(certPath, keyPath) {
+		logx.AppErrorf("TLS credentials missing in data directory: %s", f.dataDir)
 		fmt.Fprintln(os.Stderr, "error: TLS credentials missing in data directory.")
 		fmt.Fprintln(os.Stderr, "To provision self-signed certs, run:")
 		fmt.Fprintf(os.Stderr, "  ai.local -d %s -gen-cert\n", f.dataDir)
 		fmt.Fprintln(os.Stderr, "Alternatively, place your custom OpenSSL / ACME certificates into the folder manually.")
 		os.Exit(1)
 	}
+	logx.AppDebugf("TLS certificate alignment verified: crt=%s, key=%s", certPath, keyPath)
 
+	logx.AppInfof("initializing usage backend store (SQLite)...")
 	db := initDatabase(f.dataDir, cfg)
 	defer db.Close()
 
@@ -69,6 +81,7 @@ func main() {
 
 	startServices(svc, f, certPath, keyPath)
 
+	logx.AppInfof("core services fully energized. control-plane: %s, data-plane: %s", f.grpcAddr, f.proxyAddr)
 	fmt.Println("\nai.local core services fully energized. Press Ctrl+C to terminate.")
 	waitForShutdown(svc)
 }
@@ -111,10 +124,13 @@ func generateCert(baseURI, dataDir string) {
 	keyPath := filepath.Join(dataDir, "ai.local.key")
 
 	fmt.Printf("Generating self-signed certificate for %s into %s...\n", baseURI, dataDir)
+	logx.AppInfof("generating self-signed certificate for %s into %s...", baseURI, dataDir)
+
 	if err := internaltls.GenerateSelfSignedCert(baseURI, certPath, keyPath); err != nil {
 		fatalf("failed to generate certificate: %v", err)
 	}
 	fmt.Println("TLS credentials successfully synchronized onto disk.")
+	logx.AppInfof("TLS credentials successfully synchronized onto disk.")
 }
 
 func resolveCertPaths(dataDir string) (certPath, keyPath string) {
@@ -142,6 +158,8 @@ func buildPlanName(cfg *apml.APMLConfig) string {
 
 func initDatabase(dataDir string, cfg *apml.APMLConfig) *sql.DB {
 	dbPath := filepath.Join(dataDir, buildDBName(cfg))
+	logx.AppDebugf("opening sqlite database connection at: %s", dbPath)
+
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		fatalf("failed to open usage db: %v", err)
@@ -149,17 +167,20 @@ func initDatabase(dataDir string, cfg *apml.APMLConfig) *sql.DB {
 	if err := usage.InitSchema(db); err != nil {
 		fatalf("failed to init usage schema: %v", err)
 	}
+	logx.AppInfof("sqlite storage engine schema initialized successfully.")
 	return db
 }
 
 // ---- services ----
 
 func initServices(cfg *apml.APMLConfig, db *sql.DB) *services {
+	logx.AppDebugf("assembling runtime internal subsystems...")
 	keyStore := keystore.NewStore()
 	usageStore := usage.NewUsageStore(db)
 
 	usageBackend := usage.NewUsageBackend(db)
 	usageBackend.StartWorker()
+	logx.AppDebugf("asynchronous token ledger background worker spawned.")
 
 	grpcServer, err := grpc.NewServer(cfg, keyStore, usageStore)
 	if err != nil {
@@ -180,12 +201,14 @@ func initServices(cfg *apml.APMLConfig, db *sql.DB) *services {
 
 func startServices(svc *services, f flags, certPath, keyPath string) {
 	go func() {
+		logx.AppDebugf("binding gRPC control plane listener onto %s", f.grpcAddr)
 		if err := svc.grpcServer.Start(f.grpcAddr); err != nil {
 			fatalf("gRPC control plane crashed: %v", err)
 		}
 	}()
 
 	go func() {
+		logx.AppDebugf("binding reverse proxy data plane listener onto %s (TLS)", f.proxyAddr)
 		if err := svc.proxyServer.Start(f.proxyAddr, certPath, keyPath); err != nil {
 			fatalf("data plane proxy engine crashed: %v", err)
 		}
@@ -195,10 +218,13 @@ func startServices(svc *services, f flags, certPath, keyPath string) {
 func waitForShutdown(svc *services) {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	<-sigChan
+	sig := <-sigChan
 
+	logx.AppWarnf("received terminal signal (%v). initiating graceful shutdown protocol...", sig)
 	fmt.Println("\n[ai.local] Initiating graceful shutdown protocol...")
+
 	svc.grpcServer.Stop()
+	logx.AppInfof("core gateway services safely deactivated. engine shutdown complete.")
 	fmt.Println("[ai.local] Core services safely deactivated. Goodbye.")
 }
 
@@ -212,18 +238,19 @@ func backupAPMLConfiguration(dataDir, configPath, planName string) {
 
 	content, err := os.ReadFile(configPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "[Backup Warning] Failed to read source APML: %v\n", err)
+		logx.AppWarnf("[Backup Warning] Failed to read source APML: %v", err)
 		return
 	}
 
 	if err := os.WriteFile(latestPath, content, 0644); err != nil {
-		fmt.Fprintf(os.Stderr, "[Backup Warning] Failed to sync latest APML snapshot: %v\n", err)
+		logx.AppWarnf("[Backup Warning] Failed to sync latest APML snapshot: %v", err)
 	}
 	if err := os.WriteFile(historyPath, content, 0644); err != nil {
-		fmt.Fprintf(os.Stderr, "[Backup Warning] Failed to sync historical APML: %v\n", err)
+		logx.AppWarnf("[Backup Warning] Failed to sync historical APML: %v", err)
 		return
 	}
 
+	logx.AppInfof("APML routing specifications successfully backed up. snapshot=%s, archive=%s", latestPath, historyPath)
 	fmt.Println("[Backup] Configuration synchronized.")
 	fmt.Printf("  → Snapshot:   %s\n", latestPath)
 	fmt.Printf("  → Trajectory: %s\n", historyPath)
@@ -232,6 +259,7 @@ func backupAPMLConfiguration(dataDir, configPath, planName string) {
 // ---- helpers ----
 
 func fatalf(format string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, "error: "+format+"\n", args...)
+	msg := fmt.Sprintf(format, args...)
+	logx.AppErrorf("FATAL PANIC: %s", msg)
 	os.Exit(1)
 }

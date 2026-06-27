@@ -8,6 +8,7 @@ import (
 
 	"github.com/daneshih1125/ai.local/internal/apml"
 	"github.com/daneshih1125/ai.local/internal/keystore"
+	"github.com/daneshih1125/ai.local/internal/logx"
 	"github.com/daneshih1125/ai.local/internal/usage"
 	pb "github.com/daneshih1125/ai.local/proto"
 )
@@ -102,17 +103,23 @@ func (h *AdminHandler) ListKeys(ctx context.Context, req *pb.ListKeysRequest) (*
 func (h *AdminHandler) AddKey(ctx context.Context, req *pb.AddKeyRequest) (*pb.AddKeyResponse, error) {
 	// Strategic defense: Ensure the target configuration route exists before allocating space
 	if _, routeExists := h.cfg.Routes[req.Route]; !routeExists {
+		logx.AppErrorf("failed to add key: target context route %q does not exist", req.Route)
 		return nil, fmt.Errorf("target context route %q does not exist within current configurations", req.Route)
 	}
 
 	if strings.TrimSpace(req.RealKey) == "" {
+		logx.AppErrorf("failed to add key: upstream authorization token payload is empty")
 		return nil, fmt.Errorf("upstream authorization token payload cannot be empty")
 	}
 
 	record, err := h.store.AddKey(req.Route, req.RealKey, req.Alias)
 	if err != nil {
+		logx.AppErrorf("failed to add key to keystore on route %s: %v", req.Route, err)
 		return nil, fmt.Errorf("failed to append secure telemetry entry: %w", err)
 	}
+
+	logx.AppInfof("successfully added credentials. uuid=%s, alias=%s, route=%s, internalKey=%s",
+		record.UUID, record.Alias, record.Route, record.InternalKey)
 
 	return &pb.AddKeyResponse{InternalKey: record.InternalKey}, nil
 }
@@ -120,12 +127,18 @@ func (h *AdminHandler) AddKey(ctx context.Context, req *pb.AddKeyRequest) (*pb.A
 // DeleteKey atomically purges an operational credential reference by its secure UUID mapping.
 func (h *AdminHandler) DeleteKey(ctx context.Context, req *pb.DeleteKeyRequest) (*pb.DeleteKeyResponse, error) {
 	success := h.store.DeleteKey(req.Uuid)
+	if !success {
+		logx.AppWarnf("attempted to delete key but target UUID not found: %s", req.Uuid)
+	} else {
+		logx.AppInfof("successfully purged credential record: uuid=%s", req.Uuid)
+	}
 	return &pb.DeleteKeyResponse{Success: success}, nil
 }
 
 // GetStats returns telemetry statistics in DAILY, MONTHLY, or VERBOSE mode.
 func (h *AdminHandler) GetStats(ctx context.Context, req *pb.GetStatsRequest) (*pb.GetStatsResponse, error) {
 	if h.usage == nil {
+		logx.AppErrorf("failed to query statistics: usage store is not configured")
 		return nil, fmt.Errorf("usage store is not configured")
 	}
 	if req == nil {
@@ -150,8 +163,10 @@ func (h *AdminHandler) GetStats(ctx context.Context, req *pb.GetStatsRequest) (*
 			}
 		}
 
+		logx.AppDebugf("querying daily statistics range: %s to %s", startDate, endDate)
 		rows, err := h.usage.GetDailyStats(startDate, endDate)
 		if err != nil {
+			logx.AppErrorf("failed to retrieve daily stats: %v", err)
 			return nil, fmt.Errorf("get daily stats: %w", err)
 		}
 		for _, r := range rows {
@@ -172,8 +187,10 @@ func (h *AdminHandler) GetStats(ctx context.Context, req *pb.GetStatsRequest) (*
 			year = time.Now().Year()
 		}
 
+		logx.AppDebugf("querying monthly statistics for year: %d", year)
 		rows, err := h.usage.GetMonthlyStats(year)
 		if err != nil {
+			logx.AppErrorf("failed to retrieve monthly stats: %v", err)
 			return nil, fmt.Errorf("get monthly stats: %w", err)
 		}
 		for _, r := range rows {
@@ -194,8 +211,10 @@ func (h *AdminHandler) GetStats(ctx context.Context, req *pb.GetStatsRequest) (*
 			limit = 100
 		}
 
+		logx.AppDebugf("querying verbose system audit logs. limit=%d", limit)
 		rows, err := h.usage.GetVerboseLogs(limit)
 		if err != nil {
+			logx.AppErrorf("failed to retrieve verbose logs: %v", err)
 			return nil, fmt.Errorf("get verbose logs: %w", err)
 		}
 		for _, r := range rows {
@@ -212,6 +231,7 @@ func (h *AdminHandler) GetStats(ctx context.Context, req *pb.GetStatsRequest) (*
 		}
 
 	default:
+		logx.AppErrorf("failed to query statistics: unsupported stats mode %v", req.Mode)
 		return nil, fmt.Errorf("unsupported stats mode: %v", req.Mode)
 	}
 

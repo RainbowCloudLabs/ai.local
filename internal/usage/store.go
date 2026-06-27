@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/daneshih1125/ai.local/internal/apml"
+	"github.com/daneshih1125/ai.local/internal/logx"
 	"github.com/tidwall/gjson"
 )
 
@@ -85,6 +86,7 @@ func (u *UsageStore) QuotaCheck(
 ) CheckResult {
 	// unlimited quota (daily=0 and monthly=0 means no limit)
 	if quota.Daily == 0 && quota.Monthly == 0 {
+		logx.AppDebugf("quota check bypass: unlimited allocation policy enforced on route %s", routePath)
 		return CheckResult{Allowed: true}
 	}
 
@@ -93,14 +95,17 @@ func (u *UsageStore) QuotaCheck(
 	today := now.Format("2006-01-02")
 	thisMonth := now.Format("2006-01")
 
+	logx.AppDebugf("quota pre-flight assessment: route=%s, key=%s, mode=%s, estimated_input=%d", routePath, localKey, quota.Mode, estimated)
+
 	// daily check
 	if quota.Daily > 0 {
 		current, err := u.queryTokens(quota.Mode, localKey, routePath, "daily", today)
 		if err != nil {
-			// On DB error, fail open to avoid blocking users.
+			logx.AppDebugf("quota db failure (fail-open engaged): daily lookup failed for route %s: %v", routePath, err)
 			return CheckResult{Allowed: true}
 		}
 		if current+estimated > quota.Daily {
+			logx.AppDebugf("quota violation: daily limit breach on route %s (used=%d, estimated=%d, limit=%d)", routePath, current, estimated, quota.Daily)
 			return CheckResult{
 				Allowed:       false,
 				DenyReason:    fmt.Sprintf("daily quota exceeded: used %d + estimated %d > limit %d", current, estimated, quota.Daily),
@@ -115,10 +120,11 @@ func (u *UsageStore) QuotaCheck(
 	if quota.Monthly > 0 {
 		current, err := u.queryTokens(quota.Mode, localKey, routePath, "monthly", thisMonth)
 		if err != nil {
-			// On DB error, fail open to avoid blocking users.
+			logx.AppDebugf("quota db failure (fail-open engaged): monthly lookup failed for route %s: %v", routePath, err)
 			return CheckResult{Allowed: true}
 		}
 		if current+estimated > quota.Monthly {
+			logx.AppDebugf("quota violation: monthly limit breach on route %s (used=%d, estimated=%d, limit=%d)", routePath, current, estimated, quota.Monthly)
 			return CheckResult{
 				Allowed:       false,
 				DenyReason:    fmt.Sprintf("monthly quota exceeded: used %d + estimated %d > limit %d", current, estimated, quota.Monthly),
@@ -129,6 +135,7 @@ func (u *UsageStore) QuotaCheck(
 		}
 	}
 
+	logx.AppDebugf("quota verification cleared for route %s", routePath)
 	return CheckResult{Allowed: true, Estimated: estimated}
 }
 

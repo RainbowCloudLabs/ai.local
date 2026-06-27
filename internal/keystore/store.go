@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/daneshih1125/ai.local/internal/logx"
 	"github.com/google/uuid"
 )
 
@@ -59,18 +60,21 @@ func (s *Store) AddKey(route, realKey, alias string) (*KeyRecord, error) {
 	// Strategic Defense: Scan for duplicate upstream credentials before allocating space
 	for _, existingRecord := range s.keys {
 		if existingRecord.Route == route && existingRecord.RealKey == realKey {
+			logx.AppDebugf("rejected duplicate key registration: route=%s, existing_alias=%s", route, existingRecord.Alias)
 			return nil, fmt.Errorf("upstream authorization token already exists in mapping pool under alias %q", existingRecord.Alias)
 		}
 	}
 
 	id, err := uuid.NewRandom()
 	if err != nil {
+		logx.AppDebugf("failed to generate secure tracking identity")
 		return nil, fmt.Errorf("failed to generate secure tracking identity: %w", err)
 	}
 
 	// Generate a secure crypto-random token prefixed with "sk-local-"
 	bytes := make([]byte, 16)
 	if _, err := rand.Read(bytes); err != nil {
+		logx.AppDebugf("failed to generate entropy token")
 		return nil, fmt.Errorf("failed to generate entropy token: %w", err)
 	}
 	internalKey := fmt.Sprintf("sk-local-%s", hex.EncodeToString(bytes))
@@ -97,6 +101,7 @@ func (s *Store) DeleteKey(uid string) bool {
 
 	record, exists := s.keys[uid]
 	if !exists {
+		logx.AppDebugf("failed to delete key: uuid %s not found in keystore", uid)
 		return false
 	}
 	delete(s.keys, uid)
@@ -127,8 +132,10 @@ func (s *Store) GetKeyByInternal(internalKey string) (KeyRecord, bool) {
 	hash := hashInternalKey(internalKey)
 	record, ok := s.byHash[hash]
 	if !ok {
+		logx.AppDebugf("keystore cache miss for requested internal key hash: %s", hash)
 		return KeyRecord{}, false
 	}
+	logx.AppDebugf("keystore cache hit: matched internal key hash %s onto route %s with alias %s", hash, record.Route, record.Alias)
 	return *record, true
 }
 

@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	_ "embed"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
+	"github.com/daneshih1125/ai.local/internal/logx"
 	"github.com/daneshih1125/ai.local/schema"
 )
 
@@ -77,8 +77,8 @@ func (b *UsageBackend) EmitNonBlocking(rec *Record) {
 		b.dropped++
 		count := b.dropped
 		b.mu.Unlock()
-		log.Printf(
-			"[usage] WARNING: queue full, dropping record (local_key=%s route=%s) — %d dropped total",
+		logx.AppWarnf(
+			"queue full, dropping usage record (local_key=%s route=%s) — %d dropped total",
 			rec.LocalKey, rec.RoutePath, count,
 		)
 	}
@@ -134,8 +134,8 @@ func (b *UsageBackend) Stop() {
 // operator rather than silently lost.
 func (b *UsageBackend) writeRecord(rec *Record) {
 	if err := b.executeTripleWrite(rec); err != nil {
-		log.Printf(
-			"[usage] ERROR: failed to persist usage record (local_key=%s route=%s tokens=%d): %v",
+		logx.AppErrorf(
+			"failed to persist usage record (local_key=%s route=%s tokens=%d): %v",
 			rec.LocalKey, rec.RoutePath, rec.TotalTokens, err,
 		)
 	}

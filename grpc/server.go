@@ -6,6 +6,7 @@ import (
 
 	"github.com/daneshih1125/ai.local/internal/apml"
 	"github.com/daneshih1125/ai.local/internal/keystore"
+	"github.com/daneshih1125/ai.local/internal/logx"
 	"github.com/daneshih1125/ai.local/internal/usage"
 	pb "github.com/daneshih1125/ai.local/proto"
 
@@ -39,7 +40,7 @@ func (s *Server) Start(addr string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open gRPC transport address %s: %w", addr, err)
 	}
-	fmt.Printf("ai.local-control admin control-plane listening on gRPC: %s\n", addr)
+	logx.AppInfof("ai.local-control admin control-plane listening on gRPC: %s", addr)
 	if err := s.grpcServer.Serve(lis); err != nil {
 		return fmt.Errorf("gRPC control execution crash: %w", err)
 	}
