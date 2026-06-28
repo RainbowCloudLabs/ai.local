@@ -9,6 +9,13 @@ Ingress URL paths declared with a leading slash (`/`) map directly onto these co
 > 🛡️ **Boundary Separation Constraint**: APML is explicitly restricted to routing topography and telemetry modeling. It **does not engage** with the physical storage, lifecycle, or management of sensitive API keys (Upstream Credentials). Key bindings are isolated within the secure Control-Plane Keystore backend.
 
 ## AI PLAN Description
+```yaml
+title: AI Gateway Plan
+baseUri: https://ai.local
+version: draft
+plan_version: 2026Q3
+```
+
 * **`title`**: String (Required). Arbitrary descriptive identity or naming matrix assigned to this specific AI API gateway configuration setup (e.g., `AI Gateway Plan`)
 * **`baseUri`**: String (Required). The target structural domain or local interface interface bound to the proxy entrance (e.g., `https://ai.local`). Upstream applications redirect their base URLs here for transparent routing.
 * **`version`**: String (Required). DSL layout specification version control. Set to `draft` to enable relaxed parsing compatibility during rapid architecture iterations.
