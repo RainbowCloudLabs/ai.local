@@ -10,7 +10,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	pb "github.com/daneshih1125/ai.local/proto"
+	pb "github.com/RainbowCloudLabs/ai.local/proto"
 )
 
 // statsCLIOptions stores parsed options for the "stats" command.

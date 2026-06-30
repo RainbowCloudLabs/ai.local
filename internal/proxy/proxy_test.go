@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/daneshih1125/ai.local/internal/apml"
-	"github.com/daneshih1125/ai.local/internal/keystore"
-	"github.com/daneshih1125/ai.local/internal/usage"
+	"github.com/RainbowCloudLabs/ai.local/internal/apml"
+	"github.com/RainbowCloudLabs/ai.local/internal/keystore"
+	"github.com/RainbowCloudLabs/ai.local/internal/usage"
 	_ "modernc.org/sqlite"
 )
 

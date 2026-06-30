@@ -1,4 +1,4 @@
-module github.com/daneshih1125/ai.local
+module github.com/RainbowCloudLabs/ai.local
 
 go 1.26.4
 

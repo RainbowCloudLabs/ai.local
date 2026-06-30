@@ -9,7 +9,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	pb "github.com/daneshih1125/ai.local/proto"
+	pb "github.com/RainbowCloudLabs/ai.local/proto"
 	"github.com/manifoldco/promptui"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"

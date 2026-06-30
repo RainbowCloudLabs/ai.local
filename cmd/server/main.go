@@ -13,13 +13,13 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	"github.com/daneshih1125/ai.local/grpc"
-	"github.com/daneshih1125/ai.local/internal/apml"
-	"github.com/daneshih1125/ai.local/internal/keystore"
-	"github.com/daneshih1125/ai.local/internal/logx"
-	"github.com/daneshih1125/ai.local/internal/proxy"
-	internaltls "github.com/daneshih1125/ai.local/internal/tls"
-	"github.com/daneshih1125/ai.local/internal/usage"
+	"github.com/RainbowCloudLabs/ai.local/grpc"
+	"github.com/RainbowCloudLabs/ai.local/internal/apml"
+	"github.com/RainbowCloudLabs/ai.local/internal/keystore"
+	"github.com/RainbowCloudLabs/ai.local/internal/logx"
+	"github.com/RainbowCloudLabs/ai.local/internal/proxy"
+	internaltls "github.com/RainbowCloudLabs/ai.local/internal/tls"
+	"github.com/RainbowCloudLabs/ai.local/internal/usage"
 )
 
 type flags struct {

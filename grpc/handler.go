@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/daneshih1125/ai.local/internal/apml"
-	"github.com/daneshih1125/ai.local/internal/keystore"
-	"github.com/daneshih1125/ai.local/internal/logx"
-	"github.com/daneshih1125/ai.local/internal/usage"
-	pb "github.com/daneshih1125/ai.local/proto"
+	"github.com/RainbowCloudLabs/ai.local/internal/apml"
+	"github.com/RainbowCloudLabs/ai.local/internal/keystore"
+	"github.com/RainbowCloudLabs/ai.local/internal/logx"
+	"github.com/RainbowCloudLabs/ai.local/internal/usage"
+	pb "github.com/RainbowCloudLabs/ai.local/proto"
 )
 
 // AdminHandler coordinates control plane service operations by bridging

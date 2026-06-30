@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/daneshih1125/ai.local/internal/apml"
+	"github.com/RainbowCloudLabs/ai.local/internal/apml"
 )
 
 // newQuotaTestDB creates an isolated in-memory UsageStore for unit tests.

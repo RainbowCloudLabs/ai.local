@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/daneshih1125/ai.local/internal/logx"
-	"github.com/daneshih1125/ai.local/schema"
+	"github.com/RainbowCloudLabs/ai.local/internal/logx"
+	"github.com/RainbowCloudLabs/ai.local/schema"
 )
 
 // InitSchema ensures all required tables are securely bootstrapped in SQLite.

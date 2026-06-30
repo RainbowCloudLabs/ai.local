@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/daneshih1125/ai.local/internal/logx"
+	"github.com/RainbowCloudLabs/ai.local/internal/logx"
 	"github.com/google/uuid"
 )
 

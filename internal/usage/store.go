@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/daneshih1125/ai.local/internal/apml"
-	"github.com/daneshih1125/ai.local/internal/logx"
+	"github.com/RainbowCloudLabs/ai.local/internal/apml"
+	"github.com/RainbowCloudLabs/ai.local/internal/logx"
 	"github.com/tidwall/gjson"
 )
 

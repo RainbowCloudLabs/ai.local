@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/daneshih1125/ai.local/internal/apml"
+	"github.com/RainbowCloudLabs/ai.local/internal/apml"
 )
 
 // --- 1. Test Standard One-Shot JSON Parsing ---
