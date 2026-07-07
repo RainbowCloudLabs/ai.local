@@ -221,6 +221,8 @@ examples/
 ```
 To fire up the gateway engine and run test scenarios immediately using these environments, please check out the complete step-by-step guide in [docs/ai-examples.md](./docs/ai-examples.md).
 
+**Use AI.local with Continue (VS Code)** [docs/vscode-continue.md](./docs/vscode-continue.md)
+
 ---
 
 ## 🐋 Docker Deployment (Alpha Staging)
