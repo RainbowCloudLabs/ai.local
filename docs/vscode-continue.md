@@ -1,6 +1,6 @@
-# Use AI.local with Continue (VS Code)
+# Use ai.local with Continue (VS Code)
 
-This guide shows how to connect the **Continue** VS Code extension to **AI.local** via an OpenAI-compatible endpoint.
+This guide shows how to connect the **Continue** VS Code extension to **ai.gateway** via an OpenAI-compatible endpoint.
 
 ---
 
@@ -8,8 +8,8 @@ This guide shows how to connect the **Continue** VS Code extension to **AI.local
 
 - VS Code installed
 - Continue extension installed
-- Reachable AI.local gateway (example: `https://ai.local/openai/v1`)
-- A valid internal AI.local key (example: `sk-local-...`)
+- Reachable ai.gateway gateway (example: `https://ai.gateway/openai/v1`)
+- A valid internal ai.local key (example: `sk-local-...`)
 - A trusted TLS certificate for your gateway (recommended)
 
 ---
@@ -25,7 +25,7 @@ In VS Code:
 
 ## 2) Example configuration
 
-> Replace model names with those enabled by your AI.local routing policy.
+> Replace model names with those enabled by your ai.local routing policy.
 
 ```yaml
 name: Main Config
@@ -36,7 +36,7 @@ models:
   - name: OpenAI GPT-4.1
     provider: openai
     model: gpt-4.1-2025-04-14
-    apiBase: https://ai.local/openai/v1
+    apiBase: https://ai.gateway/openai/v1
     apiKey: ${AI_LOCAL_API_KEY}
     roles:
       - chat
@@ -50,7 +50,7 @@ models:
   - name: o3
     provider: openai
     model: o3
-    apiBase: https://ai.local/openai/v1
+    apiBase: https://ai.gateway/openai/v1
     apiKey: ${AI_LOCAL_API_KEY}
     requestOptions:
       verifySsl: false
@@ -65,7 +65,7 @@ models:
   - name: OpenAI GPT-4.1 mini
     provider: openai
     model: gpt-4.1-mini-2025-04-14
-    apiBase: https://ai.local/openai/v1
+    apiBase: https://ai.gateway/openai/v1
     apiKey: ${AI_LOCAL_API_KEY}
     requestOptions:
       verifySsl: false
@@ -110,7 +110,7 @@ After setting the variable permanently, restart VS Code (or open a new terminal 
 ## 4) TLS / certificate notes
 
 ### Recommended (production)
-Use a trusted internal CA or a valid certificate for `https://ai.local`.
+Use a trusted internal CA or a valid certificate for `https://ai.gateway`.
 
 ### Local testing only
 If you use self-signed certificates, SSL validation may fail.
@@ -139,11 +139,11 @@ Run these in Continue:
 2. **Edit**: ask Continue to modify code
 3. **Apply**: apply generated patch
 
-If all three work, Continue is successfully routed through AI.local.
+If all three work, Continue is successfully routed through ai.gateway.
 
 ---
 
-## 6) Governance validation checklist (AI.local)
+## 6) Governance validation checklist (ai.gateway)
 
 After connection, verify governance behavior:
 
@@ -159,19 +159,19 @@ After connection, verify governance behavior:
 
 ### 401 Unauthorized
 - Check `AI_LOCAL_API_KEY`
-- Confirm key is active in AI.local keystore
+- Confirm key is active in ai.gateway keystore
 - Ensure Continue reads environment variables from your current VS Code session
 
 ### 404 / model not found
-- Model is not mapped in AI.local route/provider config
+- Model is not mapped in ai.gateway route/provider config
 - Verify model string matches your gateway routing rules
 
 ### SSL certificate error
-- Install trusted certificate chain for `ai.local`
+- Install trusted certificate chain for `ai.gateway`
 - Use `verifySsl: false` only for temporary local testing
 
-### Requests bypass AI.local
-- Confirm `apiBase` is exactly `https://ai.local/openai/v1`
+### Requests bypass ai.gateway
+- Confirm `apiBase` is exactly `https://ai.gateway/openai/v1`
 - Remove conflicting provider configs in Continue
 
 ---
@@ -181,7 +181,7 @@ After connection, verify governance behavior:
 - Issue one internal key per user/team
 - Enforce per-key token and rate limits
 - Rotate/revoke internal keys regularly
-- Keep provider keys only inside AI.local (never in IDE clients)
+- Keep provider keys only inside ai.gateway (never in IDE clients)
 - Review top models/routes by token usage weekly
 
 ---
@@ -189,15 +189,15 @@ After connection, verify governance behavior:
 ## 9) Minimal single-model config
 
 ```yaml
-name: AI.local only
+name: ai.gateway only
 version: 1.0.0
 schema: v1
 
 models:
-  - name: AI.local GPT-4.1 mini
+  - name: ai.gateway GPT-4.1 mini
     provider: openai
     model: gpt-4.1-mini-2025-04-14
-    apiBase: https://ai.local/openai/v1
+    apiBase: https://ai.gateway/openai/v1
     apiKey: ${AI_LOCAL_API_KEY}
     roles:
       - chat
