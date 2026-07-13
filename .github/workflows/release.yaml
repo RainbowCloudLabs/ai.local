@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  APP_NAME: ai.local
+  CLI_NAME: ai.local.cli
+
+jobs:
+  build-release:
+    name: Build artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Set up QEMU (for multi-arch buildx)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Prepare dist
+        run: mkdir -p dist
+
+      - name: Build linux/amd64 binaries
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -o dist/${APP_NAME}-linux-amd64 ./cmd/server
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -o dist/${CLI_NAME}-linux-amd64 ./cmd/cli
+
+      - name: Build linux/arm64 binaries
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "-w -s" -o dist/${APP_NAME}-linux-arm64 ./cmd/server
+          CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "-w -s" -o dist/${CLI_NAME}-linux-arm64 ./cmd/cli
+
+      - name: Build Docker image tar (docker-archive)
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            --output type=docker,dest=dist/ai.local-alpha.tar \
+            .
+
+      - name: Build OCI tar.gz (router OS)
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            --output type=oci,dest=dist/ai.local-oci.tar \
+            .
+          gzip -f dist/ai.local-oci.tar
+
+      - name: Checksums
+        run: |
+          cd dist
+          sha256sum * > SHA256SUMS
+
+      - name: Create/Update GitHub Release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-alpha.') || contains(github.ref_name, '-beta.') || contains(github.ref_name, '-rc.') }}
+          files: |
+            dist/ai.local-linux-amd64
+            dist/ai.local.cli-linux-amd64
+            dist/ai.local-linux-arm64
+            dist/ai.local.cli-linux-arm64
+            dist/ai.local-alpha.tar
+            dist/ai.local-oci.tar.gz
+            dist/SHA256SUMS
