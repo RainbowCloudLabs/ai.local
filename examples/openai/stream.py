@@ -5,7 +5,7 @@ from openai import OpenAI
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-GATEWAY_BASE_URL = "https://ai.local/openai/v1"
+GATEWAY_BASE_URL = "https://ai.gateway/openai/v1"
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "your-internal-ai-local-key-here")
 
