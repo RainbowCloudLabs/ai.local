@@ -1,23 +1,24 @@
 # AI Plan Modeling Language (APML) Specification
 
-Inspired by the design philosophy of RAML (RESTful API Modeling Language), **APML** (`version: draft`) is a declarative specification language designed to model, route, and govern local AI gateway plans. 
+Inspired by the design philosophy of RAML (RESTful API Modeling Language), **APML** (`version: draft`) is a declarative specification language designed to model, route, and govern local AI gateway plans.
 
-By defining an explicit `baseUri` (e.g., `https://ai.local`), APML allows upstream applications to transparently redirect their AI API requests to this gateway infrastructure. APML provides structured abstractions through `quotas` and `providers` to dictate token budget enforcement boundaries and map upstream vendor request/response schemas. 
+By defining an explicit `baseUri` (e.g., `https://ai.gateway` or `https://ai.company.com`), APML allows upstream applications to transparently redirect their AI API requests to this gateway infrastructure. APML provides structured abstractions through `quotas` and `providers` to dictate token budget enforcement boundaries and map upstream vendor request/response schemas.
 
 Ingress URL paths declared with a leading slash (`/`) map directly onto these configured providers and quota matrices. For example, hitting `https://ai.local/claude` seamlessly triggers the underlying telemetry pipelines and plan restrictions specified for that channel.
 
+> ⚠️ **Network Domain Warning (mDNS Conflict)**: Avoid using `.local` TLDs (e.g., `https://ai.local`) in your `baseUri`. Operating systems utilizing Multicast DNS (mDNS) will intercept `.local` requests and bypass conventional unicast DNS resolution, causing routing failures. It is strongly recommended to use custom top-level domains such as `ai.gateway` or a fully qualified internal corporate domain (e.g., `ai.company.com`).
 > 🛡️ **Boundary Separation Constraint**: APML is explicitly restricted to routing topography and telemetry modeling. It **does not engage** with the physical storage, lifecycle, or management of sensitive API keys (Upstream Credentials). Key bindings are isolated within the secure Control-Plane Keystore backend.
 
 ## AI PLAN Description
 ```yaml
 title: AI Gateway Plan
-baseUri: https://ai.local
+baseUri: https://ai.gateway
 version: draft
 plan_version: 2026Q3
 ```
 
 * **`title`**: String (Required). Arbitrary descriptive identity or naming matrix assigned to this specific AI API gateway configuration setup (e.g., `AI Gateway Plan`)
-* **`baseUri`**: String (Required). The target structural domain or local interface interface bound to the proxy entrance (e.g., `https://ai.local`). Upstream applications redirect their base URLs here for transparent routing.
+* **`baseUri`**: String (Required). The target structural domain or local interface bound to the proxy entrance (e.g., https://ai.gateway or https://ai.company.com). Upstream applications redirect their base URLs here for transparent routing. Note: Avoid .local suffixes due to mDNS resolution constraints.
 * **`version`**: String (Required). DSL layout specification version control. Set to `draft` to enable relaxed parsing compatibility during rapid architecture iterations.
 * **`plan_version`**: String (Required). The operational versioning token for the current quota modeling matrix. Must strictly match the alphanumeric format `^[a-zA-Z][a-zA-Z0-9-]*$` (underscores are forbidden). Modifying this token automatically channels all runtime telemetry to an isolated database partition (`usage-{plan_version}.db`), ensuring historical accountability and eliminating memory cache friction.
 
