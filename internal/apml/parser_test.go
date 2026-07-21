@@ -26,8 +26,8 @@ func TestParse_APML_Suite(t *testing.T) {
 		if cfg.Title != "AI Gateway Plan" {
 			t.Errorf("Title = %q, want %q", cfg.Title, "AI Gateway Plan")
 		}
-		if cfg.BaseURI != "https://ai.local" {
-			t.Errorf("BaseURI = %q, want %q", cfg.BaseURI, "https://ai.local")
+		if cfg.BaseURI != "https://ai.gateway" {
+			t.Errorf("BaseURI = %q, want %q", cfg.BaseURI, "https://ai.gateway")
 		}
 		if cfg.Version != "draft" {
 			t.Errorf("Version = %q, want %q", cfg.Version, "draft")

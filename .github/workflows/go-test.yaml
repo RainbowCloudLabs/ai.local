@@ -3,8 +3,6 @@ name: Go Test
 on:
   workflow_dispatch:
   push:
-    tags-ignore:
-      - "v*"
   pull_request:
 
 permissions:
@@ -12,9 +10,7 @@ permissions:
 
 jobs:
   test:
-    name: Run go test
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,11 +21,8 @@ jobs:
           go-version-file: go.mod
           cache: true
 
-      - name: Show Go version
+      - name: Go version
         run: go version
-
-      - name: Download dependencies
-        run: go mod download
 
       - name: Run tests
         run: go test -v ./...
